@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<title>KrishiMitra — Smart Farming AI Agent</title>
+<link rel="stylesheet" href="/static/style.css"/>
+</head>
+<body>
+
+<!-- ── Header ─────────────────────────────────────────────────────────── -->
+<header class="header">
+  <div class="header-brand">
+    <span class="header-logo">🌾</span>
+    <div>
+      <div class="header-title">KrishiMitra</div>
+      <div class="header-sub">AI-Powered Smart Farming Advisor</div>
+    </div>
+  </div>
+  <div class="header-badge">⚡ Powered by IBM Granite · watsonx.ai</div>
+</header>
+
+<div class="layout">
+<!-- ── Sidebar ────────────────────────────────────────────────────────── -->
+<aside class="sidebar">
+
+  <!-- Language Selector -->
+  <div class="sidebar-section">
+    <div class="sidebar-title">🌐 Select Language</div>
+    <div class="lang-grid" id="lang-grid">
+      <button class="lang-btn active" data-lang="en">English</button>
+      <button class="lang-btn" data-lang="hi">हिंदी</button>
+      <button class="lang-btn" data-lang="ta">தமிழ்</button>
+      <button class="lang-btn" data-lang="te">తెలుగు</button>
+      <button class="lang-btn" data-lang="kn">ಕನ್ನಡ</button>
+      <button class="lang-btn" data-lang="mr">मराठी</button>
+      <button class="lang-btn" data-lang="pa">ਪੰਜਾਬੀ</button>
+      <button class="lang-btn" data-lang="bn">বাংলা</button>
+      <button class="lang-btn" data-lang="gu">ગુજરાતી</button>
+      <button class="lang-btn" data-lang="ml">മലയാളം</button>
+    </div>
+  </div>
+
+  <!-- Location & Soil -->
+  <div class="sidebar-section">
+    <div class="sidebar-title">📍 Location & Soil</div>
+    <input class="sidebar-input" id="city-input" placeholder="City (e.g. Delhi, Pune…)" />
+    <select class="sidebar-input" id="soil-select">
+      <option value="">Select soil type…</option>
+      <option value="alluvial">Alluvial (Gangetic plains)</option>
+      <option value="black">Black / Regur (Deccan)</option>
+      <option value="red">Red & Yellow</option>
+      <option value="laterite">Laterite</option>
+      <option value="sandy">Sandy / Desert</option>
+      <option value="loamy">Loamy</option>
+    </select>
+    <button class="quick-btn" id="get-weather-btn" style="background:#e1f5fe;border-color:#b3e5fc;color:#0277bd">
+      🌤 Get Local Weather Forecast
+    </button>
+  </div>
+
+  <!-- Weather Widget -->
+  <div class="sidebar-section" id="weather-section" style="display:none">
+    <div class="sidebar-title">🌦 Current Weather</div>
+    <div class="weather-widget" id="weather-widget">
+      <div class="weather-icon" id="w-icon">☀️</div>
+      <div class="weather-temp" id="w-temp">—°C</div>
+      <div class="weather-desc" id="w-desc">Loading…</div>
+      <div class="weather-advisory" id="w-advisory"></div>
+    </div>
+  </div>
+
+  <!-- Quick Questions -->
+  <div class="sidebar-section">
+    <div class="sidebar-title">💡 Quick Questions</div>
+    <button class="quick-btn" data-q="What is the best crop for this season in loamy soil?">
+      🌱 Best crop this season?
+    </button>
+    <button class="quick-btn" data-q="What is today's mandi rate for wheat?">
+      💰 Today's wheat price?
+    </button>
+    <button class="quick-btn" data-q="How to control pests on tomato crop?">
+      🐛 Tomato pest control?
+    </button>
+    <button class="quick-btn" data-q="How to improve soil health using organic methods?">
+      🌿 Improve soil health?
+    </button>
+    <button class="quick-btn" data-q="What government schemes are available for farmers?">
+      🏛 Govt schemes for farmers?
+    </button>
+    <button class="quick-btn" data-q="When should I irrigate my wheat crop?">
+      💧 Wheat irrigation guide?
+    </button>
+    <button class="quick-btn" data-q="What is the MSP for soybean in 2024?">
+      📊 Soybean MSP 2024?
+    </button>
+    <button class="quick-btn" data-q="How to use drip irrigation for vegetables?">
+      🚿 Drip irrigation setup?
+    </button>
+  </div>
+
+</aside>
+
+<!-- ── Main chat ───────────────────────────────────────────────────────── -->
+<main class="main">
+  <div class="messages" id="messages">
+
+    <!-- Welcome screen (hidden once chat starts) -->
+    <div class="welcome" id="welcome">
+      <div class="welcome-icon">🌾</div>
+      <h2>Welcome to KrishiMitra!</h2>
+      <p>
+        Your AI-powered smart farming advisor. Ask me anything about <strong>crops, weather, 
+        pests, soil, or market prices</strong> in your own language.
+        Powered by <strong>IBM Granite</strong> via watsonx.ai.
+      </p>
+      <div class="welcome-chips">
+        <span class="welcome-chip" data-q="Which crop is best for this season?">🌱 Crop advice</span>
+        <span class="welcome-chip" data-q="What is today's mandi rate for tomatoes?">💰 Market prices</span>
+        <span class="welcome-chip" data-q="How to protect rice from brown plant hopper?">🐛 Pest control</span>
+        <span class="welcome-chip" data-q="Tell me about PM-KISAN scheme">🏛 Govt schemes</span>
+        <span class="welcome-chip" data-q="What is the weather forecast for Delhi?">🌤 Weather</span>
+        <span class="welcome-chip" data-q="मेरी मिट्टी काली है, कौन सी फसल लगाऊं?">🇮🇳 हिंदी में पूछें</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Input Bar -->
+  <div class="input-bar">
+    <button class="voice-btn" id="voice-btn" title="Voice input">🎙</button>
+    <div class="input-wrap">
+      <textarea
+        id="user-input"
+        rows="1"
+        placeholder="Ask your farming question in any language… (e.g. 'What crop is best for black soil?')"
+      ></textarea>
+    </div>
+    <button class="send-btn" id="send-btn" title="Send">➤</button>
+  </div>
+</main>
+</div>
+
+<script>
+// ── State ──────────────────────────────────────────────────────────────────
+let selectedLang = 'en';
+let cityValue    = '';
+let soilValue    = '';
+let ws           = null;
+let isProcessing = false;
+let recognition  = null;
+
+// ── DOM refs ───────────────────────────────────────────────────────────────
+const messagesEl = document.getElementById('messages');
+const inputEl    = document.getElementById('user-input');
+const sendBtn    = document.getElementById('send-btn');
+const voiceBtn   = document.getElementById('voice-btn');
+const welcomeEl  = document.getElementById('welcome');
+
+// ── Language selector ──────────────────────────────────────────────────────
+document.getElementById('lang-grid').addEventListener('click', e => {
+  const btn = e.target.closest('.lang-btn');
+  if (!btn) return;
+  document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  selectedLang = btn.dataset.lang;
+  loadGreeting(selectedLang);
+});
+
+async function loadGreeting(lang) {
+  try {
+    const r = await fetch(`/api/greeting/${lang}`);
+    const d = await r.json();
+    addBotMessage(d.greeting, 'general_farming', {});
+  } catch {}
+}
+
+// ── Quick question buttons ─────────────────────────────────────────────────
+document.querySelectorAll('[data-q]').forEach(el => {
+  el.addEventListener('click', () => {
+    const q = el.dataset.q;
+    inputEl.value = q;
+    sendMessage();
+  });
+});
+
+// ── Weather button ─────────────────────────────────────────────────────────
+document.getElementById('get-weather-btn').addEventListener('click', async () => {
+  const city = document.getElementById('city-input').value.trim() || 'delhi';
+  try {
+    const r = await fetch('/api/weather', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({city}),
+    });
+    const data = await r.json();
+    renderWeatherWidget(data);
+    document.getElementById('weather-section').style.display = 'block';
+  } catch (e) {
+    console.error(e);
+  }
+});
+
+function renderWeatherWidget(data) {
+  if (data.error) return;
+  const cur = data.current || {};
+  const iconMap = {
+    'Clear sky':'☀️', 'Mainly clear':'🌤', 'Partly cloudy':'⛅',
+    'Overcast':'☁️', 'Moderate rain':'🌧', 'Heavy rain':'⛈',
+    'Thunderstorm':'⛈', 'Foggy':'🌫', 'Slight rain':'🌦',
+  };
+  const icon = iconMap[cur.condition] || '🌡';
+  document.getElementById('w-icon').textContent  = icon;
+  document.getElementById('w-temp').textContent  = `${cur.temp_c || '--'}°C`;
+  document.getElementById('w-desc').textContent  = cur.condition || '';
+  document.getElementById('w-advisory').textContent = data.advisory || '';
+}
+
+// ── City / Soil inputs ─────────────────────────────────────────────────────
+document.getElementById('city-input').addEventListener('change', e => { cityValue = e.target.value; });
+document.getElementById('soil-select').addEventListener('change', e => { soilValue = e.target.value; });
+
+// ── Auto-resize textarea ───────────────────────────────────────────────────
+inputEl.addEventListener('input', () => {
+  inputEl.style.height = 'auto';
+  inputEl.style.height = Math.min(inputEl.scrollHeight, 120) + 'px';
+});
+inputEl.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); }
+});
+
+sendBtn.addEventListener('click', sendMessage);
+
+// ── Send message ───────────────────────────────────────────────────────────
+async function sendMessage() {
+  const msg = inputEl.value.trim();
+  if (!msg || isProcessing) return;
+
+  welcomeEl.style.display = 'none';
+  addUserMessage(msg);
+  inputEl.value = '';
+  inputEl.style.height = 'auto';
+
+  const thinkingEl = addThinkingIndicator();
+  isProcessing = true;
+  sendBtn.disabled = true;
+
+  try {
+    const body = {
+      message:   msg,
+      language:  selectedLang !== 'en' ? selectedLang : null,
+      city:      document.getElementById('city-input').value.trim() || null,
+      soil_type: document.getElementById('soil-select').value || null,
+    };
+    const resp = await fetch('/api/chat', {
+      method:  'POST',
+      headers: {'Content-Type': 'application/json'},
+      body:    JSON.stringify(body),
+    });
+    const data = await resp.json();
+    thinkingEl.remove();
+    addBotMessage(data.answer, data.intent, data.tool_data, data.sources);
+  } catch (err) {
+    thinkingEl.remove();
+    addBotMessage('⚠️ Error: ' + err.message, 'general_farming', {});
+  } finally {
+    isProcessing   = false;
+    sendBtn.disabled = false;
+    inputEl.focus();
+  }
+}
+
+// ── Message renderers ──────────────────────────────────────────────────────
+function addUserMessage(text) {
+  const div = document.createElement('div');
+  div.className = 'msg user';
+  div.innerHTML = `
+    <div class="msg-avatar">👤</div>
+    <div>
+      <div class="msg-bubble">${escHtml(text)}</div>
+      <div class="msg-meta">${timeNow()}</div>
+    </div>`;
+  messagesEl.appendChild(div);
+  scrollBottom();
+}
+
+function addBotMessage(text, intent, toolData, sources = []) {
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+
+  const intentHtml = intentBadge(intent);
+  const toolHtml   = renderToolData(intent, toolData);
+  const srcHtml    = sources && sources.length
+    ? `<div class="msg-meta" style="margin-top:6px">📚 Sources: ${sources.map(s=>s.category||s.id).filter(Boolean).slice(0,3).join(', ')}</div>`
+    : '';
+
+  div.innerHTML = `
+    <div class="msg-avatar">🌾</div>
+    <div style="flex:1">
+      <div class="msg-bubble">
+        ${formatText(text)}
+        ${toolHtml}
+      </div>
+      <div class="msg-meta">${timeNow()} ${intentHtml}</div>
+      ${srcHtml}
+    </div>`;
+  messagesEl.appendChild(div);
+  scrollBottom();
+}
+
+function addThinkingIndicator() {
+  const div = document.createElement('div');
+  div.className = 'msg bot';
+  div.innerHTML = `
+    <div class="msg-avatar">🌾</div>
+    <div>
+      <div class="msg-bubble">
+        <div class="thinking">
+          <span></span><span></span><span></span>
+        </div>
+        <span style="font-size:12px;color:#90a4ae;margin-left:6px">KrishiMitra is thinking…</span>
+      </div>
+    </div>`;
+  messagesEl.appendChild(div);
+  scrollBottom();
+  return div;
+}
+
+function renderToolData(intent, toolData) {
+  if (!toolData || Object.keys(toolData).length === 0) return '';
+
+  if (intent === 'market' && toolData.market) {
+    const m = toolData.market;
+    const price = m.modal_price || m.msp || m.avg_modal || '—';
+    return `<div class="tool-card">
+      <h4>📊 ${m.commodity || ''} Market Price</h4>
+      <span class="price-pill">₹${price}/qtl</span>
+      <span style="font-size:12px;color:#546e7a">${m.source || ''}</span>
+      ${m.advice ? `<p style="font-size:12px;margin-top:6px;color:#37474f">${m.advice}</p>` : ''}
+    </div>`;
+  }
+
+  if (intent === 'crop_advice' && toolData.crops) {
+    const c = toolData.crops;
+    const tags = (c.recommended_crops || []).slice(0, 5).map(cr =>
+      `<span class="crop-tag">${cr.crop}</span>`).join('');
+    return `<div class="tool-card">
+      <h4>🌱 Recommended Crops — ${c.season || ''} Season</h4>
+      ${tags}
+      ${c.advisory ? `<p style="font-size:12px;margin-top:6px;color:#37474f">${c.advisory}</p>` : ''}
+    </div>`;
+  }
+
+  if (intent === 'weather' && toolData.weather && toolData.weather.forecast) {
+    const days = toolData.weather.forecast.slice(0, 3);
+    const rows = days.map(d =>
+      `<div style="font-size:12px;padding:3px 0;border-bottom:1px solid #e8f5e9">
+        <strong>${d.date}</strong>: ${d.condition}, ${d.temp_max_c}°C / ${d.temp_min_c}°C,
+        Rain ${d.rainfall_mm}mm
+      </div>`).join('');
+    return `<div class="tool-card">
+      <h4>🌦 3-Day Forecast</h4>
+      ${rows}
+      <p style="font-size:12px;margin-top:6px;color:#0277bd">${toolData.weather.advisory || ''}</p>
+    </div>`;
+  }
+
+  return '';
+}
+
+function intentBadge(intent) {
+  const map = {
+    weather:       ['intent-weather',  '🌤 Weather'],
+    market:        ['intent-market',   '💰 Market'],
+    crop_advice:   ['intent-crop',     '🌱 Crops'],
+    pest_control:  ['intent-pest',     '🐛 Pest'],
+    general_farming:['intent-general', '🌾 General'],
+  };
+  const [cls, label] = map[intent] || map['general_farming'];
+  return `<span class="intent-badge ${cls}">${label}</span>`;
+}
+
+// ── Voice Input (Web Speech API) ───────────────────────────────────────────
+voiceBtn.addEventListener('click', () => {
+  if (!('webkitSpeechRecognition' in window) && !('SpeechRecognition' in window)) {
+    alert('Voice input not supported in this browser. Please use Chrome.');
+    return;
+  }
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  if (!recognition) {
+    recognition = new SpeechRecognition();
+    recognition.continuous    = false;
+    recognition.interimResults = false;
+    recognition.onresult = e => {
+      inputEl.value = e.results[0][0].transcript;
+      voiceBtn.classList.remove('active');
+    };
+    recognition.onerror = () => voiceBtn.classList.remove('active');
+    recognition.onend   = () => voiceBtn.classList.remove('active');
+  }
+  const langMap = {hi:'hi-IN', ta:'ta-IN', te:'te-IN', kn:'kn-IN',
+                   mr:'mr-IN', pa:'pa-IN', bn:'bn-IN', gu:'gu-IN', ml:'ml-IN', en:'en-IN'};
+  recognition.lang = langMap[selectedLang] || 'en-IN';
+  voiceBtn.classList.add('active');
+  recognition.start();
+});
+
+// ── Helpers ────────────────────────────────────────────────────────────────
+function formatText(text) {
+  if (!text) return '';
+  return escHtml(text)
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>')
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/^\d+\.\s/gm, s => `<br>${s}`)
+    .replace(/^[-•]\s/gm, s => `<br>• `);
+}
+
+function escHtml(s) {
+  return (s || '')
+    .replace(/&/g,'&amp;')
+    .replace(/</g,'&lt;')
+    .replace(/>/g,'&gt;')
+    .replace(/"/g,'&quot;');
+}
+
+function timeNow() {
+  return new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+function scrollBottom() {
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
+</script>
+</body>
+</html>
