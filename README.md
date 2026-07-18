@@ -3,7 +3,7 @@
 > **IBM Granite + watsonx.ai · RAG Pipeline · 10 Indian Languages · Real-time Data**
 
 KrishiMitra ("Farm Friend") is a RAG-powered AI Agent that delivers real-time, localised agricultural guidance to small-scale Indian farmers. Powered by **IBM Granite** via **IBM Cloud watsonx.ai**, it bridges the knowledge gap with timely, data-driven decisions.
-
+## livedemo: https://farming-agent-aicte.onrender.com
 ---
 
 ## ✨ Features
