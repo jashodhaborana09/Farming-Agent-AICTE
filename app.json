@@ -1,0 +1,160 @@
+{
+  "name": "krishimitra",
+  "description": "KrishiMitra — AI Agent for Smart Farming Advice powered by IBM Granite (watsonx.ai) and RAG",
+  "version": "1.0.0",
+  "author": "Smart Farming AI Team",
+  "license": "MIT",
+
+  "ibm_watsonx": {
+    "region": "eu-gb",
+    "url": "https://eu-gb.ml.cloud.ibm.com",
+    "llm_model": "meta-llama/llama-3-3-70b-instruct",
+    "embedding_model": "ibm/granite-embedding-278m-multilingual",
+    "generation_params": {
+      "max_new_tokens": 1024,
+      "min_new_tokens": 10,
+      "temperature": 0.3,
+      "repetition_penalty": 1.1,
+      "decoding_method": "greedy"
+    }
+  },
+
+  "vector_store": {
+    "engine": "chromadb",
+    "collection": "farming_knowledge",
+    "path": "./data/chroma_db",
+    "retrieval_top_k": 5,
+    "embedding_dim": 768
+  },
+
+  "server": {
+    "host": "0.0.0.0",
+    "port": 8000,
+    "debug": false,
+    "log_level": "INFO",
+    "browse_url": "http://localhost:8000"
+  },
+
+  "external_apis": {
+    "weather": {
+      "provider": "Open-Meteo",
+      "base_url": "https://api.open-meteo.com/v1",
+      "api_key_required": false,
+      "forecast_days": 7
+    },
+    "market_prices": {
+      "provider": "Agmarknet (data.gov.in)",
+      "base_url": "https://api.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070",
+      "api_key_required": true,
+      "fallback": "MSP 2024-25 curated data"
+    }
+  },
+
+  "supported_languages": {
+    "en": "English",
+    "hi": "Hindi",
+    "ta": "Tamil",
+    "te": "Telugu",
+    "kn": "Kannada",
+    "mr": "Marathi",
+    "pa": "Punjabi",
+    "bn": "Bengali",
+    "gu": "Gujarati",
+    "ml": "Malayalam"
+  },
+
+  "knowledge_base": {
+    "total_documents": 16,
+    "categories": [
+      "crop_recommendation",
+      "soil_health",
+      "pest_control",
+      "irrigation",
+      "water_management",
+      "market_prices",
+      "government_schemes",
+      "seasonal_planning"
+    ],
+    "seasons_covered": ["kharif", "rabi", "zaid"],
+    "crops_covered": [
+      "Rice", "Wheat", "Maize", "Cotton", "Soybean", "Groundnut",
+      "Mustard", "Chickpea", "Bajra", "Jowar", "Tomato", "Onion",
+      "Potato", "Sugarcane", "Watermelon", "Cucumber"
+    ]
+  },
+
+  "api_endpoints": {
+    "chat":      { "method": "POST", "path": "/api/chat",           "description": "Main natural-language farming query" },
+    "weather":   { "method": "POST", "path": "/api/weather",        "description": "7-day weather forecast with farming advisory" },
+    "market":    { "method": "POST", "path": "/api/market",         "description": "Live mandi price for a commodity" },
+    "crops":     { "method": "POST", "path": "/api/crops",          "description": "Crop recommendations by soil and season" },
+    "languages": { "method": "GET",  "path": "/api/languages",      "description": "List all supported language codes" },
+    "greeting":  { "method": "GET",  "path": "/api/greeting/{lang}","description": "Localised KrishiMitra greeting" },
+    "health":    { "method": "GET",  "path": "/health",             "description": "Server health check" },
+    "websocket": { "method": "WS",   "path": "/ws/chat",            "description": "Real-time WebSocket chat stream" }
+  },
+
+  "intents": [
+    "weather",
+    "market",
+    "crop_advice",
+    "pest_control",
+    "general_farming"
+  ],
+
+  "government_schemes": [
+    "PM-KISAN",
+    "PM Fasal Bima Yojana",
+    "Soil Health Card Scheme",
+    "eNAM",
+    "Kisan Credit Card (KCC)",
+    "PKVY",
+    "RKVY",
+    "PMKSY",
+    "MIDH"
+  ],
+
+  "msp_2024_25": {
+    "wheat":     { "msp": 2275,  "unit": "INR/quintal", "season": "rabi"   },
+    "rice":      { "msp": 2300,  "unit": "INR/quintal", "season": "kharif" },
+    "maize":     { "msp": 2090,  "unit": "INR/quintal", "season": "kharif" },
+    "soybean":   { "msp": 4600,  "unit": "INR/quintal", "season": "kharif" },
+    "groundnut": { "msp": 6783,  "unit": "INR/quintal", "season": "kharif" },
+    "cotton":    { "msp": 7521,  "unit": "INR/quintal", "season": "kharif" },
+    "mustard":   { "msp": 5950,  "unit": "INR/quintal", "season": "rabi"   },
+    "chickpea":  { "msp": 5440,  "unit": "INR/quintal", "season": "rabi"   },
+    "arhar":     { "msp": 7550,  "unit": "INR/quintal", "season": "kharif" },
+    "moong":     { "msp": 8682,  "unit": "INR/quintal", "season": "kharif" },
+    "bajra":     { "msp": 2625,  "unit": "INR/quintal", "season": "kharif" },
+    "jowar":     { "msp": 3371,  "unit": "INR/quintal", "season": "kharif" },
+    "barley":    { "msp": 1735,  "unit": "INR/quintal", "season": "rabi"   },
+    "sugarcane": { "msp": 340,   "unit": "INR/quintal", "season": "annual" }
+  },
+
+  "scripts": {
+    "start":   "python main.py",
+    "ingest":  "python scripts/ingest.py",
+    "test":    "python scripts/test_services.py",
+    "test_ibm":"python scripts/test_services.py --with-ibm"
+  },
+
+  "project_structure": {
+    "main.py":                    "FastAPI application — all HTTP and WebSocket endpoints",
+    "config.py":                  "Centralised configuration loaded from .env",
+    "app.json":                   "Application metadata and configuration manifest",
+    "requirements.txt":           "Python dependencies",
+    "agent/farming_agent.py":     "Main orchestration — intent routing, tool calls, RAG, translation",
+    "rag/granite_client.py":      "IBM watsonx.ai LLM (chat API) and embedding client",
+    "rag/rag_pipeline.py":        "RAG prompt builder and answer generation",
+    "rag/vector_store.py":        "ChromaDB ingestion and semantic retrieval",
+    "data/knowledge_base.py":     "16 curated farming knowledge documents",
+    "tools/weather_service.py":   "Open-Meteo 7-day weather forecasts",
+    "tools/market_service.py":    "Agmarknet live prices + MSP 2024-25 fallback",
+    "tools/crop_service.py":      "Season × soil crop recommendation engine",
+    "tools/language_service.py":  "Language detection and Google Translate integration",
+    "frontend/index.html":        "Full chat UI with voice input and language switcher",
+    "frontend/static/style.css":  "UI stylesheet",
+    "scripts/ingest.py":          "One-time knowledge base ingestion script",
+    "scripts/test_services.py":   "Smoke tests for all services"
+  }
+}
